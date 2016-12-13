@@ -1,0 +1,22 @@
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">BacklightTest</string>
+
+    <string name="backlight_test_times_title">"测试次数："</string>
+    <string name="backlight_test_times">"次"</string>
+    <string name="backlight_test_screen_off_time">"灭屏时间："</string>
+    <string name="backlight_test_time">"秒"</string>
+    <string name="backlight_test_screen_on_time">"亮屏时间："</string>
+    <string name="backlight_test_tested_times">"已测试时间："</string>
+    <string name="backlight_test_not_tested_times">"未测试时间："</string>
+    <string name="backlight_test_current_screen_on_time">"本次亮屏时间："</string>
+    <string name="backlight_test_last_screen_on_time">"上次亮屏时间："</string>
+    <string name="backlight_test_start">"开始"</string>
+    <string name="backlight_test_stop">"停止"</string>
+    <string name="backlight_test_last_test_result">"上次测试结果："</string>
+    <string name="backlight_test_pass">"通过"</string>
+    <string name="backlight_test_fail">"失败"</string>
+    <string name="backlight_test_times_limit">"测试次数应在0到"<xliff:g id="limit">%d</xliff:g>"之间"</string>
+    <string name="backlight_test_screen_on_time_limit">"亮屏时间应在0到"<xliff:g id="limit">%d</xliff:g>"之间"</string>
+    <string name="backlight_test_screen_off_time_limit">"灭屏时间应在0到"<xliff:g id="limit">%d</xliff:g>"之间"</string>
+
+</resources>
