@@ -125,6 +125,9 @@ public class BacklightTest extends Activity implements View.OnClickListener {
         mStartOrStopBt.setOnClickListener(this);
     }
 
+    /**
+     * 更新所有view的状态
+      */
     private void updateViews() {
         mTestedTimes = mSharedPreferences.getLong(KEY_TESTED_TIMES, -1);
         mUntestTimes = mSharedPreferences.getLong(KEY_NOT_TESTED_TIMES, -1);
@@ -150,14 +153,23 @@ public class BacklightTest extends Activity implements View.OnClickListener {
         }
     }
 
+    /**
+     * 亮屏
+      */
     private void wakeUp() {
         mPowerManager.wakeUp(SystemClock.uptimeMillis(), "backlight_test");
     }
 
+    /**
+     * 灭屏
+     */
     private void goToSleep() {
         mPowerManager.goToSleep(SystemClock.uptimeMillis());
     }
 
+    /**
+     * 开始测试
+     */
     private void startTest() {
         if (!mIsStart) {
             boolean enabledTest = checkTestParameter();
@@ -180,6 +192,9 @@ public class BacklightTest extends Activity implements View.OnClickListener {
         }
     }
 
+    /**
+     * 停止测试
+     */
     private void stopTest() {
         if (mIsStart) {
             mTestTimesEt.setText("");
@@ -205,6 +220,10 @@ public class BacklightTest extends Activity implements View.OnClickListener {
         }
     }
 
+    /**
+     * 检查测试参数
+     * @return 如果参数符合条件，就返回true；否则返回false
+     */
     private boolean checkTestParameter() {
         boolean enabled = true;
         String timesStr = mTestTimesEt.getText().toString().trim();
