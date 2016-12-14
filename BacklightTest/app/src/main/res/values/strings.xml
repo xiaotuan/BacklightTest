@@ -15,8 +15,8 @@
     <string name="backlight_test_last_test_result">"上次测试结果："</string>
     <string name="backlight_test_pass">"通过"</string>
     <string name="backlight_test_fail">"失败"</string>
-    <string name="backlight_test_times_limit">"测试次数应在0到"<xliff:g id="limit">%d</xliff:g>"之间"</string>
-    <string name="backlight_test_screen_on_time_limit">"亮屏时间应在0到"<xliff:g id="limit">%d</xliff:g>"之间"</string>
-    <string name="backlight_test_screen_off_time_limit">"灭屏时间应在0到"<xliff:g id="limit">%d</xliff:g>"之间"</string>
+    <string name="backlight_test_times_limit">"测试次数应在1到"<xliff:g id="limit">%d</xliff:g>"之间"</string>
+    <string name="backlight_test_screen_on_time_limit">"亮屏时间应在1到"<xliff:g id="limit">%d</xliff:g>"之间"</string>
+    <string name="backlight_test_screen_off_time_limit">"灭屏时间应在1到"<xliff:g id="limit">%d</xliff:g>"之间"</string>
 
 </resources>

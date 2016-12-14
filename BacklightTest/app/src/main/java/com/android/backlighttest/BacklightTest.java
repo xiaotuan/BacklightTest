@@ -22,6 +22,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
@@ -53,8 +54,6 @@ public class BacklightTest extends Activity implements View.OnClickListener {
     private Button mStartOrStopBt;
 
     private PowerManager mPowerManager;
-    private PowerManager.WakeLock mWakeLock;
-    private WindowManager mWindowManager;
     private SharedPreferences mSharedPreferences;
     private SimpleDateFormat mSimpleDateFormat;
 
@@ -106,8 +105,6 @@ public class BacklightTest extends Activity implements View.OnClickListener {
 
     private void initValues() {
         mPowerManager = (PowerManager) getSystemService(POWER_SERVICE);
-        mWakeLock = mPowerManager.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK, "backlight_test");
-        mWindowManager = getWindowManager();
         mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         mSimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         mSimpleDateFormat.setTimeZone(TimeZone.getDefault());
@@ -154,82 +151,57 @@ public class BacklightTest extends Activity implements View.OnClickListener {
     }
 
     private void wakeUp() {
-        /*
-        Class clazz = mPowerManager.getClass();
-        try {
-            Method wakeUp = clazz.getDeclaredMethod("wakeUp", long.class, String.class);
-            wakeUp.invoke(mPowerManager, SystemClock.uptimeMillis(), "backlight_test");
-        } catch (Exception e) {
-            Log.e(TAG, "wakeUp=>error: ", e);
-        }
-        */
-        /*
         mPowerManager.wakeUp(SystemClock.uptimeMillis(), "backlight_test");
-        */
-        if (!mPowerManager.isInteractive()) {
-            mWakeLock.acquire();
-            mWakeLock.release();
-        }
     }
 
     private void goToSleep() {
-        /*
-        Class clazz = mPowerManager.getClass();
-        try {
-            Method wakeUp = clazz.getDeclaredMethod("goToSleep", long.class);
-            wakeUp.invoke(mPowerManager, SystemClock.uptimeMillis());
-        } catch (Exception e) {
-            Log.e(TAG, "wakeUp=>error: ", e);
-        }
-        */
-        /*
         mPowerManager.goToSleep(SystemClock.uptimeMillis());
-        */
     }
 
     private void startTest() {
-        boolean enabledTest = checkTestParameter();
-        Log.d(TAG, "startTest=>enabled: " + enabledTest);
-        if (enabledTest) {
-            mIsStart = true;
-            mStartOrStopBt.setText(R.string.backlight_test_stop);
-            mTestTimesEt.setEnabled(false);
-            mScreenOffTimeEt.setEnabled(false);
-            mScreenOnTimeEt.setEnabled(false);
-            SharedPreferences.Editor e = mSharedPreferences.edit();
-            e.putLong(KEY_TESTED_TIMES, 0);
-            e.putLong(KEY_NOT_TESTED_TIMES, mTimes);
-            e.putString(KEY_CURRENT_SCREEN_ON_TIME, mSimpleDateFormat.format(Calendar.getInstance().getTime()));
-            e.remove(KEY_LAST_SCREEN_ON_TIME);
-            e.commit();
-            mHandler.sendEmptyMessage(MSG_SCREEN_OFF);
+        if (!mIsStart) {
+            boolean enabledTest = checkTestParameter();
+            Log.d(TAG, "startTest=>enabled: " + enabledTest);
+            if (enabledTest) {
+                mIsStart = true;
+                mStartOrStopBt.setText(R.string.backlight_test_stop);
+                mTestTimesEt.setEnabled(false);
+                mScreenOffTimeEt.setEnabled(false);
+                mScreenOnTimeEt.setEnabled(false);
+                SharedPreferences.Editor e = mSharedPreferences.edit();
+                e.putLong(KEY_TESTED_TIMES, 0);
+                e.putLong(KEY_NOT_TESTED_TIMES, mTimes);
+                e.putString(KEY_CURRENT_SCREEN_ON_TIME, mSimpleDateFormat.format(Calendar.getInstance().getTime()));
+                e.remove(KEY_LAST_SCREEN_ON_TIME);
+                e.commit();
+                mHandler.sendEmptyMessage(MSG_SCREEN_OFF);
+            }
+            updateViews();
         }
-        updateViews();
     }
 
     private void stopTest() {
-        if (mWakeLock.isHeld()) {
-            mWakeLock.release();
-        }
-        mTestTimesEt.setText("");
-        mScreenOnTimeEt.setText("");
-        mScreenOffTimeEt.setText("");
-        mIsStart = false;
-        mHandler.removeMessages(MSG_SCREEN_OFF);
-        mHandler.removeMessages(MSG_SCREEN_ON);
-        mStartOrStopBt.setText(R.string.backlight_test_start);
-        mTestTimesEt.setEnabled(true);
-        mScreenOffTimeEt.setEnabled(true);
-        mScreenOnTimeEt.setEnabled(true);
-        long untestedTime = mSharedPreferences.getLong(KEY_NOT_TESTED_TIMES, 0);
-        if (untestedTime == 0) {
-            mTestResultTv.setTextColor(0xff00ff00);
-            mTestResultTv.setText(R.string.backlight_test_pass);
-            mSharedPreferences.edit().putInt(KEY_LAST_TEST_RESULT, 1).commit();
-        } else {
-            mTestResultTv.setTextColor(0xffff0000);
-            mTestResultTv.setText(R.string.backlight_test_fail);
-            mSharedPreferences.edit().putInt(KEY_LAST_TEST_RESULT, 0).commit();
+        if (mIsStart) {
+            mTestTimesEt.setText("");
+            mScreenOnTimeEt.setText("");
+            mScreenOffTimeEt.setText("");
+            mIsStart = false;
+            mHandler.removeMessages(MSG_SCREEN_OFF);
+            mHandler.removeMessages(MSG_SCREEN_ON);
+            mStartOrStopBt.setText(R.string.backlight_test_start);
+            mTestTimesEt.setEnabled(true);
+            mScreenOffTimeEt.setEnabled(true);
+            mScreenOnTimeEt.setEnabled(true);
+            long untestedTime = mSharedPreferences.getLong(KEY_NOT_TESTED_TIMES, 0);
+            if (untestedTime == 0) {
+                mTestResultTv.setTextColor(0xff00ff00);
+                mTestResultTv.setText(R.string.backlight_test_pass);
+                mSharedPreferences.edit().putInt(KEY_LAST_TEST_RESULT, 1).commit();
+            } else {
+                mTestResultTv.setTextColor(0xffff0000);
+                mTestResultTv.setText(R.string.backlight_test_fail);
+                mSharedPreferences.edit().putInt(KEY_LAST_TEST_RESULT, 0).commit();
+            }
         }
     }
 
@@ -240,6 +212,12 @@ public class BacklightTest extends Activity implements View.OnClickListener {
         String screenOffTimeStr = mScreenOffTimeEt.getText().toString().trim();
         try {
             mTimes = Long.parseLong(timesStr);
+            if (mTimes <= 0) {
+                Toast.makeText(this, getString(R.string.backlight_test_times_limit, Long.MAX_VALUE), Toast.LENGTH_SHORT).show();
+                mTestTimesEt.setText("");
+                mTimes = 0;
+                enabled = false;
+            }
         } catch (Exception e) {
             Log.e(TAG, "checkTestParameter=>error: ", e);
             Toast.makeText(this, getString(R.string.backlight_test_times_limit, Long.MAX_VALUE), Toast.LENGTH_SHORT).show();
@@ -250,6 +228,12 @@ public class BacklightTest extends Activity implements View.OnClickListener {
 
         try {
             mScreenOnTime = Long.parseLong(screenOnTimeStr);
+            if (mScreenOnTime <= 0) {
+                Toast.makeText(this, getString(R.string.backlight_test_screen_on_time_limit, Long.MAX_VALUE), Toast.LENGTH_SHORT).show();
+                mScreenOnTimeEt.setText("");
+                mScreenOnTime = 0;
+                enabled = false;
+            }
         } catch (Exception e) {
             Log.e(TAG, "checkTestParameter=>error: ", e);
             Toast.makeText(this, getString(R.string.backlight_test_screen_on_time_limit, Long.MAX_VALUE), Toast.LENGTH_SHORT).show();
@@ -260,6 +244,12 @@ public class BacklightTest extends Activity implements View.OnClickListener {
 
         try {
             mScreenOffTime = Long.parseLong(screenOffTimeStr);
+            if (mScreenOffTime  <= 0) {
+                Toast.makeText(this, getString(R.string.backlight_test_screen_off_time_limit, Long.MAX_VALUE), Toast.LENGTH_SHORT).show();
+                mScreenOffTimeEt.setText("");
+                mScreenOffTime = 0;
+                enabled = false;
+            }
         } catch (Exception e) {
             Log.e(TAG, "checkTestParameter=>error: ", e);
             Toast.makeText(this, getString(R.string.backlight_test_screen_off_time_limit, Long.MAX_VALUE), Toast.LENGTH_SHORT).show();
@@ -281,6 +271,7 @@ public class BacklightTest extends Activity implements View.OnClickListener {
                     break;
 
                 case MSG_SCREEN_ON:
+                    wakeUp();
                     long untestedTimes = mSharedPreferences.getLong(KEY_NOT_TESTED_TIMES, 0);
                     SharedPreferences.Editor e = mSharedPreferences.edit();
                     e.putString(KEY_LAST_SCREEN_ON_TIME, mSharedPreferences.getString(KEY_CURRENT_SCREEN_ON_TIME, ""));
